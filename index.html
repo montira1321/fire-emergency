@@ -49,7 +49,8 @@
             <div class="row g-3">
                 <div class="col-md-6">
                     <label class="form-label fw-bold">หน่วยงานที่เกิดเหตุ <span class="text-danger">*</span></label>
-                    <select class="form-select unit-selector" id="source_unit" required></select>
+                    <select class="form-select unit-selector" id="source_unit" required>
+                        <option></option> </select>
                 </div>
                 <div class="col-md-3 col-6">
                     <label class="form-label">ผู้ประสานงาน</label>
@@ -79,7 +80,11 @@
             <h6 class="text-danger fw-bold">🔴 ผู้ป่วยหนัก (สีแดง)</h6>
             <div class="row g-2">
                 <div class="col-3"><input type="number" class="form-control qty" placeholder="ราย"></div>
-                <div class="col-9"><select class="form-select dest-selector dest" id="red_dest"></select></div>
+                <div class="col-9">
+                    <select class="form-select dest-selector dest">
+                        <option></option>
+                    </select>
+                </div>
                 <div class="col-12"><input type="text" class="form-control mt-1 note" placeholder="อุปกรณ์ที่ต้องการ / Note"></div>
             </div>
         </div>
@@ -88,7 +93,11 @@
             <h6 class="text-warning fw-bold">🟡 ผู้ป่วยต้องได้รับการช่วยเหลือ (สีเหลือง)</h6>
             <div class="row g-2">
                 <div class="col-3"><input type="number" class="form-control qty" placeholder="ราย"></div>
-                <div class="col-9"><select class="form-select dest-selector dest" id="yellow_dest"></select></div>
+                <div class="col-9">
+                    <select class="form-select dest-selector dest">
+                        <option></option>
+                    </select>
+                </div>
                 <div class="col-12"><input type="text" class="form-control mt-1 note" placeholder="อุปกรณ์ที่ต้องการ / Note"></div>
             </div>
         </div>
@@ -97,7 +106,11 @@
             <h6 class="text-success fw-bold">🟢 ผู้ป่วยช่วยเหลือตัวเองได้ (สีเขียว)</h6>
             <div class="row g-2">
                 <div class="col-3"><input type="number" class="form-control qty" placeholder="ราย"></div>
-                <div class="col-9"><select class="form-select dest-selector dest" id="green_dest"></select></div>
+                <div class="col-9">
+                    <select class="form-select dest-selector dest">
+                        <option></option>
+                    </select>
+                </div>
                 <div class="col-12"><input type="text" class="form-control mt-1 note" placeholder="อุปกรณ์ที่ต้องการ / Note"></div>
             </div>
         </div>
@@ -121,58 +134,26 @@
         <div class="card p-4">
             <h5 class="section-title">4. รายงานสถานการณ์หลังสิ้นสุดแผน</h5>
             <div class="row g-3">
-                <div class="col-md-4">
-                    <label class="form-label small fw-bold">ส่งกับหน่วยงาน (ราย)</label>
-                    <input type="number" id="send_qty" class="form-control border-success">
-                </div>
-                <div class="col-md-4">
-                    <label class="form-label small fw-bold">รอย้ายจากที่อื่น (ราย)</label>
-                    <input type="number" id="wait_qty" class="form-control border-warning">
-                </div>
-                <div class="col-md-4">
-                    <label class="form-label small fw-bold">ติดตามผู้ป่วย (ราย)</label>
-                    <input type="number" id="follow_qty" class="form-control border-danger">
-                </div>
-                <div class="col-12">
-                    <label class="form-label small fw-bold">รายชื่อผู้ป่วย (HN)</label>
-                    <textarea id="patient_hn" class="form-control" rows="2" placeholder="กรอก HN รายบุคคล..."></textarea>
-                </div>
-                <div class="col-12">
-                    <label class="form-label small fw-bold">ติดตามอุปกรณ์</label>
-                    <textarea id="equipment_note" class="form-control" rows="2" placeholder="ระบุรายการอุปกรณ์..."></textarea>
-                </div>
-                <div class="col-12">
-                    <label class="form-label fw-bold text-danger">แจ้งเหตุด่วนอื่นๆ</label>
-                    <input type="text" id="extra_emergency" class="form-control border-danger" placeholder="ระบุเหตุการณ์ฉุกเฉินเพิ่มเติม...">
-                </div>
+                <div class="col-md-4"><label class="form-label small fw-bold">ส่งกับหน่วยงาน (ราย)</label><input type="number" id="send_qty" class="form-control border-success"></div>
+                <div class="col-md-4"><label class="form-label small fw-bold">รอย้ายจากที่อื่น (ราย)</label><input type="number" id="wait_qty" class="form-control border-warning"></div>
+                <div class="col-md-4"><label class="form-label small fw-bold">ติดตามผู้ป่วย (ราย)</label><input type="number" id="follow_qty" class="form-control border-danger"></div>
+                <div class="col-12"><label class="form-label small fw-bold">รายชื่อผู้ป่วย (HN)</label><textarea id="patient_hn" class="form-control" rows="2" placeholder="กรอก HN รายบุคคล..."></textarea></div>
+                <div class="col-12"><label class="form-label small fw-bold">ติดตามอุปกรณ์</label><textarea id="equipment_note" class="form-control" rows="2" placeholder="ระบุรายการอุปกรณ์..."></textarea></div>
+                <div class="col-12"><label class="form-label fw-bold text-danger">แจ้งเหตุด่วนอื่นๆ</label><input type="text" id="extra_emergency" class="form-control border-danger" placeholder="ระบุเหตุการณ์ฉุกเฉินเพิ่มเติม..."></div>
             </div>
         </div>
 
         <div class="card p-4 shadow-sm border-danger" style="border-width: 2px;">
             <h5 class="section-title">5. สรุปสถานะความคืบหน้าปัจจุบัน</h5>
             <div class="status-stepper">
-                <div class="step active" onclick="setStep(this, 'In Progress')">
-                    <div class="step-circle"></div>
-                    <div class="step-label">กำลังอพยพ<br>(In Progress)</div>
-                </div>
-                <div class="step" onclick="setStep(this, 'Evacuated')">
-                    <div class="step-circle"></div>
-                    <div class="step-label">อพยพเสร็จสิ้น<br>(Evacuated)</div>
-                </div>
-                <div class="step" onclick="setStep(this, 'Accounted For')">
-                    <div class="step-circle"></div>
-                    <div class="step-label">เช็คยอดเรียบร้อย<br>(Accounted For)</div>
-                </div>
-                <div class="step" onclick="setStep(this, 'Completed')">
-                    <div class="step-circle"></div>
-                    <div class="step-label">ปิดภารกิจ<br>(Completed)</div>
-                </div>
+                <div class="step active" onclick="setStep(this, 'In Progress')"><div class="step-circle"></div><div class="step-label">กำลังอพยพ<br>(In Progress)</div></div>
+                <div class="step" onclick="setStep(this, 'Evacuated')"><div class="step-circle"></div><div class="step-label">อพยพเสร็จสิ้น<br>(Evacuated)</div></div>
+                <div class="step" onclick="setStep(this, 'Accounted For')"><div class="step-circle"></div><div class="step-label">เช็คยอดเรียบร้อย<br>(Accounted For)</div></div>
+                <div class="step" onclick="setStep(this, 'Completed')"><div class="step-circle"></div><div class="step-label">ปิดภารกิจ<br>(Completed)</div></div>
             </div>
             <input type="hidden" id="unit_status" value="In Progress">
-            
             <button type="submit" class="btn btn-submit shadow mt-2">บันทึกและอัปเดตสถานะไป Dashboard</button>
         </div>
-
     </form>
 </div>
 
@@ -189,26 +170,22 @@
     });
 
     function initSelectors() {
-        // เตรียมข้อมูลหน่วยงานแบบมีค่าว่างข้างหน้า
-        const dataOptions = [
-            { id: '', text: '' }, // เพิ่มบรรทัดว่างเป็นค่าเริ่มต้น
-            ...unitList.map(u => ({id: u, text: u}))
-        ];
+        const dataOptions = unitList.map(u => ({id: u, text: u}));
 
-        // 1. ตัวเลือกหน่วยงานต้นทาง (บังคับเลือก)
-        $('.unit-selector').select2({ 
-            data: dataOptions, 
-            placeholder: "-- เลือกหน่วยงานที่เกิดเหตุ --", 
-            allowClear: true 
-        });
-
-        // 2. ตัวเลือกจุดหมายปลายทาง (ไม่บังคับ, เป็นค่าว่างเริ่มต้น, พิมพ์เพิ่มเองได้)
-        $('.dest-selector').select2({ 
-            data: dataOptions, 
-            tags: true, 
-            placeholder: "-- เลือกหรือระบุจุดหมาย --",
+        // 1. หน่วยงานที่เกิดเหตุ (ต้องค้นหาเท่านั้น)
+        $('.unit-selector').select2({
+            data: dataOptions,
+            placeholder: "--- ค้นหาหน่วยงานที่เกิดเหตุ ---",
             allowClear: true
-        }).val(null).trigger('change'); // Set default เป็น blank
+        }).val(null).trigger('change'); // บังคับให้เป็นช่องว่างตอนเริ่มต้น
+
+        // 2. จุดหมายปลายทาง (ว่างไว้ และพิมพ์เพิ่มเองได้)
+        $('.dest-selector').select2({
+            data: dataOptions,
+            tags: true,
+            placeholder: "--- ระบุจุดหมาย (ว่างไว้ได้) ---",
+            allowClear: true
+        }).val(null).trigger('change');
     }
 
     function addStaffLocation() {
@@ -218,25 +195,22 @@
                 <button type="button" class="btn-close position-absolute end-0 top-0 m-2" onclick="removeEntry(${id})"></button>
                 <div class="row g-2">
                     <div class="col-12 mb-1">
-                        <select class="form-select dest-selector-dynamic" id="select_${id}"></select>
+                        <select class="form-select dest-selector-dynamic" id="select_${id}"><option></option></select>
                     </div>
                     <div class="col-3"><label class="small">พยาบาล</label><input type="number" class="form-control"></div>
                     <div class="col-3"><label class="small">PN</label><input type="number" class="form-control"></div>
                     <div class="col-3"><label class="small">ธุรการ</label><input type="number" class="form-control"></div>
                     <div class="col-3"><label class="small">อื่นๆ</label><input type="number" class="form-control"></div>
-                    <div class="col-12 mt-1">
-                        <input type="text" class="form-control form-control-sm" placeholder="หมายเหตุบุคลากร">
-                    </div>
+                    <div class="col-12 mt-1"><input type="text" class="form-control form-control-sm" placeholder="หมายเหตุบุคลากร"></div>
                 </div>
             </div>`;
         $('#staffDestinationContainer').append(html);
 
-        const dynamicOptions = [{ id: '', text: '' }, ...unitList.map(u => ({id: u, text: u}))];
-        $(`#select_${id}`).select2({ 
-            data: dynamicOptions, 
-            tags: true, 
-            placeholder: "ระบุสถานที่ปลายทาง (ถ้ามี)",
-            allowClear: true 
+        $(`#select_${id}`).select2({
+            data: unitList.map(u => ({id: u, text: u})),
+            tags: true,
+            placeholder: "ค้นหาหรือระบุสถานที่ปลายทาง",
+            allowClear: true
         }).val(null).trigger('change');
     }
 
@@ -252,7 +226,6 @@
         $('.step').removeClass('active');
         $(element).addClass('active');
         $('#unit_status').val(statusName);
-        
         if(statusName === 'Completed') $('.btn-submit').css('background', '#15803d').text('ปิดภารกิจสำเร็จ (Submit)');
         else if(statusName === 'Accounted For') $('.btn-submit').css('background', '#ea580c').text('อัปเดต: เช็คยอดผู้ป่วยเรียบร้อย');
         else $('.btn-submit').css('background', '#b91c1c').text('อัปเดตข้อมูลและสถานะ');
