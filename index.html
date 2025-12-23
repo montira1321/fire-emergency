@@ -239,7 +239,7 @@
         const payload = {
             source_unit: $('#source_unit').val(),
             coordinator: $('#coordinator').val(),
-            phone: $('#phone').val(),
+            phone:"'" + $('#phone').val(),
             total_beds: $('#total_beds').val(),
             current_patients: $('#current_patients').val(),
             vacant_beds: $('#vacant_beds').val(),
@@ -277,3 +277,4 @@
 </script>
 </body>
 </html>
+
