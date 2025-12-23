@@ -59,7 +59,7 @@
                 </div>
                 <div class="col-md-3 col-6">
                     <label class="form-label">เบอร์โทร</label>
-                    <input type="tel" class="form-control" id="phone" placeholder="เบอร์ติดต่อ">
+                    <input type="text" class="form-control" id="phone" placeholder="เบอร์ติดต่อ">
                 </div>
                 <div class="col-4">
                     <label class="form-label small">จำนวนเตียง</label>
@@ -167,14 +167,12 @@
     function initSelectors() {
         const dataOptions = unitList.map(u => ({id: u, text: u}));
 
-        // หน่วยงานที่เกิดเหตุ
         $('.unit-selector').select2({
             data: dataOptions,
             placeholder: "--- ค้นหาหน่วยงานที่เกิดเหตุ ---",
             allowClear: true
         }).val(null).trigger('change');
 
-        // จุดหมายปลายทาง (ทุกช่อง) - แก้ไขให้ว่างเหมือนต้นทาง
         $('.dest-selector').select2({
             data: dataOptions,
             tags: true,
@@ -201,7 +199,6 @@
             </div>`;
         $('#staffDestinationContainer').append(html);
 
-        // จุดหมายปลายทางบุคลากร - แก้ไขให้ว่างเหมือนกัน
         $(`#select_${id}`).select2({
             data: unitList.map(u => ({id: u, text: u})),
             tags: true,
