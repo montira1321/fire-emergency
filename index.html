@@ -50,7 +50,8 @@
                 <div class="col-md-6">
                     <label class="form-label fw-bold">หน่วยงานที่เกิดเหตุ <span class="text-danger">*</span></label>
                     <select class="form-select unit-selector" id="source_unit" required>
-                        <option></option> </select>
+                        <option></option>
+                    </select>
                 </div>
                 <div class="col-md-3 col-6">
                     <label class="form-label">ผู้ประสานงาน</label>
@@ -81,9 +82,7 @@
             <div class="row g-2">
                 <div class="col-3"><input type="number" class="form-control qty" placeholder="ราย"></div>
                 <div class="col-9">
-                    <select class="form-select dest-selector dest">
-                        <option></option>
-                    </select>
+                    <select class="form-select dest-selector dest"><option></option></select>
                 </div>
                 <div class="col-12"><input type="text" class="form-control mt-1 note" placeholder="อุปกรณ์ที่ต้องการ / Note"></div>
             </div>
@@ -94,9 +93,7 @@
             <div class="row g-2">
                 <div class="col-3"><input type="number" class="form-control qty" placeholder="ราย"></div>
                 <div class="col-9">
-                    <select class="form-select dest-selector dest">
-                        <option></option>
-                    </select>
+                    <select class="form-select dest-selector dest"><option></option></select>
                 </div>
                 <div class="col-12"><input type="text" class="form-control mt-1 note" placeholder="อุปกรณ์ที่ต้องการ / Note"></div>
             </div>
@@ -107,9 +104,7 @@
             <div class="row g-2">
                 <div class="col-3"><input type="number" class="form-control qty" placeholder="ราย"></div>
                 <div class="col-9">
-                    <select class="form-select dest-selector dest">
-                        <option></option>
-                    </select>
+                    <select class="form-select dest-selector dest"><option></option></select>
                 </div>
                 <div class="col-12"><input type="text" class="form-control mt-1 note" placeholder="อุปกรณ์ที่ต้องการ / Note"></div>
             </div>
@@ -172,18 +167,18 @@
     function initSelectors() {
         const dataOptions = unitList.map(u => ({id: u, text: u}));
 
-        // 1. หน่วยงานที่เกิดเหตุ (ต้องค้นหาเท่านั้น)
+        // หน่วยงานที่เกิดเหตุ
         $('.unit-selector').select2({
             data: dataOptions,
             placeholder: "--- ค้นหาหน่วยงานที่เกิดเหตุ ---",
             allowClear: true
-        }).val(null).trigger('change'); // บังคับให้เป็นช่องว่างตอนเริ่มต้น
+        }).val(null).trigger('change');
 
-        // 2. จุดหมายปลายทาง (ว่างไว้ และพิมพ์เพิ่มเองได้)
+        // จุดหมายปลายทาง (ทุกช่อง) - แก้ไขให้ว่างเหมือนต้นทาง
         $('.dest-selector').select2({
             data: dataOptions,
             tags: true,
-            placeholder: "--- ระบุจุดหมาย (ว่างไว้ได้) ---",
+            placeholder: "--- ค้นหาจุดหมายปลายทาง ---",
             allowClear: true
         }).val(null).trigger('change');
     }
@@ -206,6 +201,7 @@
             </div>`;
         $('#staffDestinationContainer').append(html);
 
+        // จุดหมายปลายทางบุคลากร - แก้ไขให้ว่างเหมือนกัน
         $(`#select_${id}`).select2({
             data: unitList.map(u => ({id: u, text: u})),
             tags: true,
@@ -215,13 +211,11 @@
     }
 
     function removeEntry(id) { $(`#entry_${id}`).remove(); }
-
     function calcBeds() {
         let total = document.getElementById('total_beds').value || 0;
         let patients = document.getElementById('current_patients').value || 0;
         document.getElementById('vacant_beds').value = total - patients;
     }
-
     function setStep(element, statusName) {
         $('.step').removeClass('active');
         $(element).addClass('active');
@@ -234,7 +228,6 @@
     document.getElementById('evacForm').onsubmit = function(e) {
         e.preventDefault();
         $('#loading').css('display', 'flex');
-
         let staffDestDetails = [];
         $('#staffDestinationContainer .staff-entry').each(function() {
             staffDestDetails.push({
@@ -246,7 +239,6 @@
                 note: $(this).find('input').eq(4).val()
             });
         });
-
         const payload = {
             source_unit: $('#source_unit').val(),
             coordinator: $('#coordinator').val(),
@@ -273,7 +265,6 @@
             unit_status: $('#unit_status').val(),
             extra_emergency: $('#extra_emergency').val()
         };
-
         fetch(SCRIPT_URL, {
             method: "POST",
             mode: "no-cors",
