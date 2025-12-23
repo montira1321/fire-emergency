@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fire Evacuation System - v6 Nurse Informatics</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <style>
+        body { background-color: #f4f7f6; font-family: 'Sarabun', sans-serif; padding-bottom: 60px; }
+        .card { border-radius: 12px; border: none; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 1.5rem; }
+        .header-banner { background: linear-gradient(135deg, #b91c1c 0%, #7f1d1d 100%); color: white; padding: 25px; border-radius: 0 0 25px 25px; margin-bottom: 25px; }
+        .section-title { color: #b91c1c; font-weight: bold; border-left: 6px solid #b91c1c; padding-left: 12px; margin: 20px 0; }
+        .triage-red { border-top: 6px solid #dc3545; }
+        .triage-yellow { border-top: 6px solid #ffc107; }
+        .triage-green { border-top: 6px solid #198754; }
+        .staff-entry { background: #ffffff; padding: 15px; border-radius: 10px; border: 1px dashed #cbd5e1; margin-bottom: 10px; position: relative; }
+        .btn-add { background-color: #0f172a; color: white; border-radius: 8px; font-size: 0.9rem; }
+        .btn-submit { background: #b91c1c; color: white; width: 100%; padding: 18px; font-size: 1.3rem; border-radius: 12px; border: none; transition: 0.3s; }
+        .btn-submit:hover { background: #991b1b; transform: translateY(-2px); }
+        .loading-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.8); z-index: 9999; justify-content: center; align-items: center; }
+
+        /* Step Progress Bar Styling */
+        .status-stepper { display: flex; justify-content: space-between; position: relative; margin: 25px 0; padding: 0 5px; }
+        .status-stepper::before { content: ''; position: absolute; top: 15px; left: 10%; right: 10%; height: 2px; background: #cbd5e1; z-index: 1; }
+        .step { position: relative; z-index: 2; text-align: center; cursor: pointer; flex: 1; }
+        .step-circle { width: 30px; height: 30px; border-radius: 50%; background: #fff; border: 2px solid #cbd5e1; margin: 0 auto 5px; transition: 0.3s; }
+        .step.active .step-circle { background: #b91c1c; border-color: #b91c1c; box-shadow: 0 0 10px rgba(185, 28, 28, 0.4); }
+        .step-label { font-size: 10px; font-weight: bold; color: #64748b; line-height: 1.2; }
+        .step.active .step-label { color: #b91c1c; }
+    </style>
+</head>
+<body>
+
+<div id="loading" class="loading-overlay flex-column">
+    <div class="spinner-border text-danger mb-2"></div>
+    <b>กำลังส่งข้อมูลไป Google Sheets...</b>
+</div>
+
+<div class="header-banner text-center shadow">
+    <h3>🚒 ระบบรายงานแผนอพยพหนีไฟ</h3>
+    <p class="mb-0">สำหรับบริหารจัดการและรายงานสถิติสถานการณ์เร่งด่วน</p>
+</div>
+
+<div class="container">
+    <form id="evacForm">
+        
+        <div class="card p-4">
+            <h5 class="section-title">1. รายงานสถานการณ์เริ่มแผน</h5>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label fw-bold">หน่วยงานที่เกิดเหตุ</label>
+                    <select class="form-select unit-selector" id="source_unit" required></select>
+                </div>
+                <div class="col-md-3 col-6">
+                    <label class="form-label">ผู้ประสานงาน</label>
+                    <input type="text" class="form-control" id="coordinator" placeholder="ชื่อ-นามสกุล" required>
+                </div>
+                <div class="col-md-3 col-6">
+                    <label class="form-label">เบอร์โทร</label>
+                    <input type="tel" class="form-control" id="phone" placeholder="เบอร์ติดต่อ">
+                </div>
+                <div class="col-4">
+                    <label class="form-label small">จำนวนเตียง</label>
+                    <input type="number" class="form-control" id="total_beds" oninput="calcBeds()">
+                </div>
+                <div class="col-4">
+                    <label class="form-label small text-danger">จำนวนผู้ป่วย</label>
+                    <input type="number" class="form-control border-danger" id="current_patients" oninput="calcBeds()">
+                </div>
+                <div class="col-4">
+                    <label class="form-label small text-success">เตียงว่าง</label>
+                    <input type="text" class="form-control bg-light fw-bold" id="vacant_beds" readonly>
+                </div>
+            </div>
+        </div>
+
+        <h5 class="section-title">2. ข้อมูลการจำแนกประเภทผู้ป่วยและจุดหมายปลายทาง</h5>
+        <div class="card p-3 triage-red" id="card_red">
+            <h6 class="text-danger fw-bold">🔴 ผู้ป่วยหนัก (สีแดง)</h6>
+            <div class="row g-2">
+                <div class="col-3"><input type="number" class="form-control qty" placeholder="ราย"></div>
+                <div class="col-9"><select class="form-select dest-selector dest"></select></div>
+                <div class="col-12"><input type="text" class="form-control mt-1 note" placeholder="อุปกรณ์ที่ต้องการ / Note"></div>
+            </div>
+        </div>
+
+        <div class="card p-3 triage-yellow" id="card_yellow">
+            <h6 class="text-warning fw-bold">🟡 ผู้ป่วยต้องได้รับการช่วยเหลือ (สีเหลือง)</h6>
+            <div class="row g-2">
+                <div class="col-3"><input type="number" class="form-control qty" placeholder="ราย"></div>
+                <div class="col-9"><select class="form-select dest-selector dest"></select></div>
+                <div class="col-12"><input type="text" class="form-control mt-1 note" placeholder="อุปกรณ์ที่ต้องการ / Note"></div>
+            </div>
+        </div>
+
+        <div class="card p-3 triage-green" id="card_green">
+            <h6 class="text-success fw-bold">🟢 ผู้ป่วยช่วยเหลือตัวเองได้ (สีเขียว)</h6>
+            <div class="row g-2">
+                <div class="col-3"><input type="number" class="form-control qty" placeholder="ราย"></div>
+                <div class="col-9"><select class="form-select dest-selector dest"></select></div>
+                <div class="col-12"><input type="text" class="form-control mt-1 note" placeholder="อุปกรณ์ที่ต้องการ / Note"></div>
+            </div>
+        </div>
+
+        <div class="card p-4">
+            <h5 class="section-title">3. บุคลากรและการติดตาม (Staff Tracking)</h5>
+            <div class="bg-light p-3 rounded mb-3 border" id="staff_origin_group">
+                <p class="fw-bold mb-2 small">บุคลากรในเวร (ต้นทาง)</p>
+                <div class="row g-2 text-center">
+                    <div class="col-3"><label class="small">พยาบาล</label><input type="number" class="form-control"></div>
+                    <div class="col-3"><label class="small">PN</label><input type="number" class="form-control"></div>
+                    <div class="col-3"><label class="small">ธุรการ</label><input type="number" class="form-control"></div>
+                    <div class="col-3"><label class="small">อื่นๆ</label><input type="number" class="form-control"></div>
+                </div>
+            </div>
+            <p class="fw-bold mb-2 small">ติดตามบุคลากรที่ไป "ปลายทาง"</p>
+            <div id="staffDestinationContainer"></div>
+            <button type="button" class="btn btn-add w-100 mt-2" onclick="addStaffLocation()">+ เพิ่มสถานที่ปลายทางบุคลากร</button>
+        </div>
+
+        <div class="card p-4">
+            <h5 class="section-title">4. รายงานสถานการณ์หลังสิ้นสุดแผน</h5>
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label small fw-bold">ส่งกับหน่วยงาน (ราย)</label>
+                    <input type="number" id="send_qty" class="form-control border-success">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label small fw-bold">รอย้ายจากที่อื่น (ราย)</label>
+                    <input type="number" id="wait_qty" class="form-control border-warning">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label small fw-bold">ติดตามผู้ป่วย (ราย)</label>
+                    <input type="number" id="follow_qty" class="form-control border-danger">
+                </div>
+                <div class="col-12">
+                    <label class="form-label small fw-bold">รายชื่อผู้ป่วย (HN)</label>
+                    <textarea id="patient_hn" class="form-control" rows="2" placeholder="กรอก HN รายบุคคล..."></textarea>
+                </div>
+                <div class="col-12">
+                    <label class="form-label small fw-bold">ติดตามอุปกรณ์</label>
+                    <textarea id="equipment_note" class="form-control" rows="2" placeholder="ระบุรายการอุปกรณ์..."></textarea>
+                </div>
+                <div class="col-12">
+                    <label class="form-label fw-bold text-danger">แจ้งเหตุด่วนอื่นๆ</label>
+                    <input type="text" id="extra_emergency" class="form-control border-danger" placeholder="ระบุเหตุการณ์ฉุกเฉินเพิ่มเติม...">
+                </div>
+            </div>
+        </div>
+
+        <div class="card p-4 shadow-sm border-danger" style="border-width: 2px;">
+            <h5 class="section-title">5. สรุปสถานะความคืบหน้าปัจจุบัน</h5>
+            <div class="status-stepper">
+                <div class="step active" onclick="setStep(this, 'In Progress')">
+                    <div class="step-circle"></div>
+                    <div class="step-label">กำลังอพยพ<br>(In Progress)</div>
+                </div>
+                <div class="step" onclick="setStep(this, 'Evacuated')">
+                    <div class="step-circle"></div>
+                    <div class="step-label">อพยพเสร็จสิ้น<br>(Evacuated)</div>
+                </div>
+                <div class="step" onclick="setStep(this, 'Accounted For')">
+                    <div class="step-circle"></div>
+                    <div class="step-label">เช็คยอดเรียบร้อย<br>(Accounted For)</div>
+                </div>
+                <div class="step" onclick="setStep(this, 'Completed')">
+                    <div class="step-circle"></div>
+                    <div class="step-label">ปิดภารกิจ<br>(Completed)</div>
+                </div>
+            </div>
+            <input type="hidden" id="unit_status" value="In Progress">
+            
+            <button type="submit" class="btn btn-submit shadow mt-2">บันทึกและอัปเดตสถานะไป Dashboard</button>
+        </div>
+
+    </form>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<script>
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz4iD7vU_G_DfCru3pffbhdN0n_HISJhwEaelU_GjWKgWszEFIod9tyRShghvNVqJp8/exec";
+    const unitList = ["ห้องประชุมอรรถสิทธิ์", "RAOFM", "RAOCC", "RAOAM", "RAOPH", "RAOPS", "RAECT", "RAOGY", "RAOOB", "RAORH", "RAOER", "RAOOU", "RAARU", "RAOGP", "SDOMD", "SDODM", "SDOET", "SDOSU", "SDORP", "SDOEY", "SDOIU", "SDOSP", "SDPMD", "SDPOS", "SDPOG", "SDPPD", "SDPEY", "SDPET", "SDPDS", "SDPPS", "QSPCM", "RHPK", "RA5NE", "RA5SE", "RA5SW", "RA9SE", "RA4TW", "RA2TP", "RA2TC", "RA1RH", "RA4NE", "RA4NW", "RA6SW", "RA3NW", "RA6NW", "RA6NE", "RAHSU1", "RA6SE", "RA7SW", "RA7SE", "RA9SW", "RA7NE", "RA1OW", "RA2OW", "RA3OW", "QSPSY", "RARPU", "QSIPD71", "QSIPD72", "QSIPD81", "QSIPD82", "QSIPD91", "QSIPD92", "QSIPD93", "SDIPD62", "SDIPD63", "SDIPD64", "SDIPD65", "SDIPD72", "SDIPD73", "SDIPD74", "SDIPD75", "SDIPD76", "SDIPD81", "SDIPD82", "SDIPD83", "SDIPD85", "SDIPD86", "SDNS61", "SDIPD96", "RAOPD", "RA8SE", "RA8NW", "RA4SP", "RA8SW", "RA8NE", "RA8IC", "RA9PC", "RA8NC", "RA9NE", "RA1TI", "RA3IC", "QS4IC", "RA4IT", "RA5IC", "RA5NB", "RA5NW", "SDICU51", "SDHD", "SDCCU91", "SDICU92", "SDICU95", "QSICU8", "QSVA04", "RA9IC", "RA9CC", "RA7NW", "RAASU", "QSHD5", "SDNICU6", "RAXSU", "RAXRP", "RAXET", "RAXEY", "RAXGY", "RAXRR", "QSXSK", "RALR4", "SDLR6", "SDOR5", "RASCU", "RAHHC1", "SDHHC2", "RASSS1", "SDSSS2", "SDLMB", "SDHCC", "SDNC", "SDIVN", "QSTC", "RAHTU", "PCU"];
+
+    $(document).ready(function() {
+        initSelectors();
+        addStaffLocation();
+    });
+
+    function initSelectors() {
+        $('.unit-selector').select2({ data: unitList.map(u => ({id: u, text: u})), placeholder: "-- ค้นหารหัสหน่วยงาน --", allowClear: true });
+        $('.dest-selector').select2({ data: unitList.map(u => ({id: u, text: u})), tags: true, placeholder: "-- ระบุจุดหมาย --" });
+    }
+
+    function addStaffLocation() {
+        const id = Date.now();
+        const html = `
+            <div class="staff-entry shadow-sm" id="entry_${id}">
+                <button type="button" class="btn-close position-absolute end-0 top-0 m-2" onclick="removeEntry(${id})"></button>
+                <div class="row g-2">
+                    <div class="col-12 mb-1">
+                        <select class="form-select dest-selector-dynamic" id="select_${id}"></select>
+                    </div>
+                    <div class="col-3"><label class="small">พยาบาล</label><input type="number" class="form-control"></div>
+                    <div class="col-3"><label class="small">PN</label><input type="number" class="form-control"></div>
+                    <div class="col-3"><label class="small">ธุรการ</label><input type="number" class="form-control"></div>
+                    <div class="col-3"><label class="small">อื่นๆ</label><input type="number" class="form-control"></div>
+                    <div class="col-12 mt-1">
+                        <input type="text" class="form-control form-control-sm" placeholder="หมายเหตุบุคลากร">
+                    </div>
+                </div>
+            </div>`;
+        $('#staffDestinationContainer').append(html);
+        $(`#select_${id}`).select2({ data: unitList.map(u => ({id: u, text: u})), tags: true, placeholder: "ระบุสถานที่ปลายทาง" });
+    }
+
+    function removeEntry(id) { $(`#entry_${id}`).remove(); }
+
+    function calcBeds() {
+        let total = document.getElementById('total_beds').value || 0;
+        let patients = document.getElementById('current_patients').value || 0;
+        document.getElementById('vacant_beds').value = total - patients;
+    }
+
+    function setStep(element, statusName) {
+        $('.step').removeClass('active');
+        $(element).addClass('active');
+        $('#unit_status').val(statusName);
+        
+        if(statusName === 'Completed') $('.btn-submit').css('background', '#15803d').text('ปิดภารกิจสำเร็จ (Submit)');
+        else if(statusName === 'Accounted For') $('.btn-submit').css('background', '#ea580c').text('อัปเดต: เช็คยอดผู้ป่วยเรียบร้อย');
+        else $('.btn-submit').css('background', '#b91c1c').text('อัปเดตข้อมูลและสถานะ');
+    }
+
+    document.getElementById('evacForm').onsubmit = function(e) {
+        e.preventDefault();
+        $('#loading').css('display', 'flex');
+
+        let staffDestDetails = [];
+        $('#staffDestinationContainer .staff-entry').each(function() {
+            staffDestDetails.push({
+                location: $(this).find('select').val(),
+                nurse: $(this).find('input').eq(0).val(),
+                pn: $(this).find('input').eq(1).val(),
+                clerk: $(this).find('input').eq(2).val(),
+                other: $(this).find('input').eq(3).val(),
+                note: $(this).find('input').eq(4).val()
+            });
+        });
+
+        const payload = {
+            source_unit: $('#source_unit').val(),
+            coordinator: $('#coordinator').val(),
+            phone: $('#phone').val(),
+            total_beds: $('#total_beds').val(),
+            current_patients: $('#current_patients').val(),
+            vacant_beds: $('#vacant_beds').val(),
+            red_qty: $('#card_red .qty').val(),
+            red_dest: $('#card_red .dest').val(),
+            red_note: $('#card_red .note').val(),
+            yellow_qty: $('#card_yellow .qty').val(),
+            yellow_dest: $('#card_yellow .dest').val(),
+            yellow_note: $('#card_yellow .note').val(),
+            green_qty: $('#card_green .qty').val(),
+            green_dest: $('#card_green .dest').val(),
+            green_note: $('#card_green .note').val(),
+            staff_origin: `N:${$('#staff_origin_group input').eq(0).val()}, PN:${$('#staff_origin_group input').eq(1).val()}, Clerk:${$('#staff_origin_group input').eq(2).val()}, Other:${$('#staff_origin_group input').eq(3).val()}`,
+            staff_dest_details: staffDestDetails,
+            send_qty: $('#send_qty').val(),
+            wait_qty: $('#wait_qty').val(),
+            follow_qty: $('#follow_qty').val(),
+            patient_hn: $('#patient_hn').val(),
+            equipment_note: $('#equipment_note').val(),
+            unit_status: $('#unit_status').val(),
+            extra_emergency: $('#extra_emergency').val()
+        };
+
+        fetch(SCRIPT_URL, {
+            method: "POST",
+            mode: "no-cors",
+            body: JSON.stringify(payload)
+        }).then(() => {
+            $('#loading').hide();
+            alert('อัปเดตสถานะ ' + payload.unit_status + ' เรียบร้อย!');
+        }).catch(err => {
+            $('#loading').hide();
+            alert('Error: ' + err);
+        });
+    };
+</script>
+</body>
+</html>
